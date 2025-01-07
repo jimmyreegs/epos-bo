@@ -1,0 +1,44 @@
+<div th:fragment="categoryModal" class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="categoryModalLabel">Manage Categories</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <table id="categoryTable" class="table">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Parent Category</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <h4>Add New Category</h4>
+        <form id="newCategoryForm" th:action="@{/categories/newCategory}" th:object="${category}" method="post">
+          <input type="hidden" id="categoryId" th:field="*{id}">
+          <div class="mb-3">
+            <label for="newCategoryName" class="form-label">Name:</label>
+            <input type="text" id="newCategoryName" class="form-control" th:field="*{name}" required>
+          </div>
+          <div class="mb-3">
+            <label for="newCategoryDescription" class="form-label">Description:</label>
+            <textarea id="newCategoryDescription" class="form-control" th:field="*{description}"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="parentCategorySelect" class="form-label">Parent Category:</label>
+            <select id="parentCategorySelect" th:field="*{parentCategory}" class="form-control">
+              <option value="">Select a Parent Category</option>
+              <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-secondary cancelModal" data-bs-dismiss="modal">Cancel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
