@@ -1,28 +1,10 @@
-// Fetch available locales when the page loads and ORDER them
-let availableLocales = [];
-const systemLocale = $("#locale").val();
-
-$.get("/products/availableLocales", function(data) {
-    if (data && data.length > 0) {
-        availableLocales = [...data].sort((a, b) => {
-            if (a === systemLocale) return -1;
-            if (b === systemLocale) return 1;
-            return a.localeCompare(b);
-        });
-    } else {
-        console.warn("No available locales received from server.");
-    }
-}).fail(function(jqXHR, textStatus, errorThrown) {
-    console.error("Error fetching available locales:", textStatus, errorThrown);
-});
-
 $(document).off("click", "[data-bs-target='#categoryModal']").on("click", "[data-bs-target='#categoryModal']", function() {
     $("#categoryLocaleTabs").html("");
     $("#categoryLocaleTabsContent").html("");
     $("#categoryForm")[0].reset();
     $("#categoryForm #id").val("");
 
-    availableLocales.forEach(locale => {
+    window.availableLocales.forEach(locale => { // Use window.availableLocales
         let flag = "";
         switch (locale) {
             case "en": flag = "🇬🇧"; break;
@@ -34,11 +16,11 @@ $(document).off("click", "[data-bs-target='#categoryModal']").on("click", "[data
         }
         $("#categoryLocaleTabs").append(`
             <li class="nav-item" role="presentation">
-                <button class="nav-link ${locale === systemLocale ? 'active' : ''}" id="category-${locale}-tab" data-bs-toggle="tab" data-bs-target="#category-${locale}" type="button" role="tab" aria-controls="category-${locale}" aria-selected="${locale === systemLocale}">${flag}</button>
+                <button class="nav-link ${locale === $("#locale").val() ? 'active' : ''}" id="category-${locale}-tab" data-bs-toggle="tab" data-bs-target="#category-${locale}" type="button" role="tab" aria-controls="category-${locale}" aria-selected="${locale === $("#locale").val()}">${flag}</button>
             </li>
         `);
         $("#categoryLocaleTabsContent").append(`
-            <div class="tab-pane fade ${locale === systemLocale ? 'show active' : ''}" id="category-${locale}" role="tabpanel" aria-labelledby="category-${locale}-tab">
+            <div class="tab-pane fade ${locale === $("#locale").val() ? 'show active' : ''}" id="category-${locale}" role="tabpanel" aria-labelledby="category-${locale}-tab">
                 <div class="mb-3">
                     <label for='name_${locale}' class="form-label">Name (${locale}):</label>
                     <input type='text' class='form-control w-100' name='name_${locale}' value=''>
