@@ -1,8 +1,6 @@
 package com.regtech.eposbo.controller;
 
-import com.regtech.eposbo.model.Category;
 import com.regtech.eposbo.model.Product;
-import com.regtech.eposbo.repository.CategoryRepository;
 import com.regtech.eposbo.repository.ProductRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -36,15 +34,6 @@ public class ProductsProductController { // New Controller for Product API
             logger.error("Error fetching products:", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @GetMapping("/getCategories") // Correct location: In ProductsProductController
-    @ResponseBody
-    public List<Category> getCategories() {
-        return categoryRepository.findAll();
     }
 
     @GetMapping("/getProduct/{id}")

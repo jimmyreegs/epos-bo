@@ -1,11 +1,7 @@
 $(document).ready(function() {
-    // Load data on modal shown (Corrected event)
-    $('#productModal').on('shown.bs.modal', function (event) {
-        loadProducts();
-    });
 
     $('#categoryModal').on('shown.bs.modal', function (event) {
-        loadCategories();
+        //loadCategories();
     });
 
     // Reset Product Modal on close
