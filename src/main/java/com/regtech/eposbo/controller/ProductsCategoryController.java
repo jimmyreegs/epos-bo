@@ -44,6 +44,10 @@ public class ProductsCategoryController { // New Controller for Category API
     @PostMapping("/saveCategory")
     public ResponseEntity<String> newCategory(@RequestBody Category category) {
         try {
+            if (category.getReference() == null || category.getReference().isEmpty()) {
+                category.setReference(String.valueOf(category.getId()));
+            }
+
             categoryRepository.save(category); // This will handle null parentCategory correctly
             return new ResponseEntity<>("Category saved successfully", HttpStatus.OK);
         } catch (Exception e) {

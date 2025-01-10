@@ -26,8 +26,6 @@ public class ProductsController {
 
     @GetMapping
     public String showProductsPage(Model model) {
-        model.addAttribute("category", new Category());
-        model.addAttribute("categories", categoryRepository.findAll());
         return "products";
     }
 

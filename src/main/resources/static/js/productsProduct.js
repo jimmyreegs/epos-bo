@@ -1,29 +1,3 @@
-function generateNameAndDescriptionFields(product, locale) {
-    const flag = locale === "en" ? "🇬🇧" : locale === "en-US" ? "🇺🇸" : locale.toUpperCase();
-
-    // Create tab for each locale
-    const tab = `
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="${locale}-tab" data-bs-toggle="tab" data-bs-target="#${locale}" type="button" role="tab" aria-controls="${locale}" aria-selected="false">${flag}</button>
-        </li>
-    `;
-
-    // Create tab content for each locale
-    const content = `
-        <div class="tab-pane fade" id="${locale}" role="tabpanel" aria-labelledby="${locale}-tab">
-            <div class="mb-3">
-                <label for='name_${locale}' class="form-label">Name (${locale}):</label>
-                <input type='text' class='form-control w-100' name='name_${locale}' value='${product?.name?.[locale] || ""}'>
-                <br>
-                <label for='description_${locale}' class="form-label">Description (${locale}):</label>
-                <textarea class='form-control w-100' name='description_${locale}'>${product?.description?.[locale] || ""}</textarea>
-            </div>
-        </div>
-    `;
-
-    return { tab, content };
-}
-
 // Fetch categories and populate the dropdown AND handle "Manage Categories"
 function populateCategoryDropdown() {
     $.get("/categories/getCategories", function(categories) {
@@ -34,7 +8,7 @@ function populateCategoryDropdown() {
 
         if (categories && Array.isArray(categories)) {
             categories.forEach(category => {
-                $categorySelect.append(`<option value="${category.id}">${category.name}</option>`);
+                $categorySelect.append(`<option value="${category.id}">${category.reference}</option>`);
             });
         } else {
             console.error("Invalid categories data received:", categories);
@@ -52,9 +26,6 @@ function populateCategoryDropdown() {
     });
 }
 
-
-
-
 // Function to load products into the modal table
 function loadProductsInModal() {
     $.get("/products/getProducts", function(products) {
@@ -66,7 +37,7 @@ function loadProductsInModal() {
                 const reference = product.reference || "";
                 const name = product.name && product.name["en"] ? product.name["en"] : "";
                 const description = product.description && product.description["en"] ? product.description["en"] : "";
-                const categoryName = product.category ? product.category.name || "" : "";
+                const categoryName = product.category ? product.category.reference || "" : "";
 
                 const row = `
                     <tr>
@@ -99,13 +70,13 @@ $("#productForm").submit(function(event) {
     var name = {};
     var description = {};
 
-    $("[name^='name_']").each(function() {
-        var locale = $(this).attr("name").split("_")[1];
+    $("[name^='product_name_']").each(function() {
+        var locale = $(this).attr("name").split("_")[2];
         name[locale] = $(this).val();
     });
 
-    $("[name^='description_']").each(function() {
-        var locale = $(this).attr("name").split("_")[1];
+    $("[name^='product_description_']").each(function() {
+        var locale = $(this).attr("name").split("_")[2];
         description[locale] = $(this).val();
     });
 
@@ -129,8 +100,7 @@ $("#productForm").submit(function(event) {
             loadProductsInModal();
             $("#productForm")[0].reset();
             $("#productForm #id").val("");
-            $("#nameFields").empty();
-            $("#descriptionFields").empty();
+
             alert(response);
         },
         error: function(xhr, status, error) {
@@ -148,19 +118,20 @@ $(document).on("change", "#addLocaleSelect", function() {
     const selectedLocale = $(this).val();
     if (selectedLocale) {
         const currentLocales = [];
-        $("[name^='name_']").each(function() {
-            currentLocales.push($(this).attr("name").split("_")[1]);
+        $("[name^='product_name_']").each(function() {
+            currentLocales.push($(this).attr("name").split("_")[2]);
         });
-        $("[name^='description_']").each(function() {
-            currentLocales.push($(this).attr("name").split("_")[1]);
+        $("[name^='product_description_']").each(function() {
+            currentLocales.push($(this).attr("name").split("_")[2]);
         });
         const uniqueLocales = [...new Set(currentLocales)];
 
         if (!uniqueLocales.includes(selectedLocale)) {
-            const newFields = generateNameAndDescriptionFields({name:{[selectedLocale]: ""}, description:{[selectedLocale]: ""}}, selectedLocale);
-            $("#nameFields").find("#addLocaleSelect").before(newFields); // Insert BEFORE the dropdown
-
-            $(this).val(""); // Reset the dropdown
+            const newFields = generateLocaleFields({name:{[selectedLocale]: ""}, description:{[selectedLocale]: ""}}, selectedLocale, "product"); // Added "product" prefix
+            $("#localeTabsContent").append(newFields.content); // Append content to the correct container
+            $("#localeTabs").append(newFields.tab); // Append tab to the correct container
+            $(`#product-${selectedLocale}-tab`).tab('show'); // Show the newly added tab
+            $(this).val("");
         } else {
             alert("This language has already been added.");
         }
@@ -177,15 +148,14 @@ $(document).off("click", "[data-bs-target='#productModal']").on("click", "[data-
 
     // Loop through available locales and add tabs and content
     availableLocales.forEach(locale => {
-        const { tab, content } = generateNameAndDescriptionFields({}, locale);
-        $("#localeTabs").append(tab);  // Append tab button
-        $("#localeTabsContent").append(content);  // Append content for each locale
+        const { tab, content } = generateLocaleFields({}, locale, "product"); // "product" prefix
+        $("#localeTabs").append(tab);
+        $("#localeTabsContent").append(content);
     });
 
-    // Set the correct active tab based on systemLocale or default to the first locale
-    const activeLocale = window.systemLocale || availableLocales[0]; // Default to systemLocale or first locale
-    $(`#${activeLocale}-tab`).addClass("active");
-    $(`#${activeLocale}`).addClass("show active");
+    const activeLocale = window.systemLocale || availableLocales[0];
+    $(`#product-${activeLocale}-tab`).addClass("active");
+    $(`#product-${activeLocale}`).addClass("show active");
 
     // Show the modal for creating a new product
     populateCategoryDropdown();
@@ -194,34 +164,31 @@ $(document).off("click", "[data-bs-target='#productModal']").on("click", "[data-
 });
 
 
-// Updated to directly use window.systemLocale for edit logic
 $(document).off("click", ".edit-product").on("click", ".edit-product", function() {
     const productId = $(this).data("product-id");
 
-    // Fetch product data for the selected product
     $.get(`/products/getProduct/${productId}`, function(product) {
-        // Populate basic fields (reference, category)
         $("#id").val(product.id);
         $("#reference").val(product.reference);
         $("#categorySelect").val(product.category ? product.category.id : "");
 
-        // Clear existing tabs and content
         $("#localeTabs").html("");
         $("#localeTabsContent").html("");
 
-        // Loop through available locales and populate the tabs and fields
         availableLocales.forEach(locale => {
-            const { tab, content } = generateNameAndDescriptionFields(product, locale);
-            $("#localeTabs").append(tab);  // Append tab button
-            $("#localeTabsContent").append(content);  // Append content for each locale
+            const { tab, content } = generateLocaleFields(product, locale, "product");
+            $("#localeTabs").append(tab);
+            $("#localeTabsContent").append(content);
+
+            // Set the input field values *after* appending to the DOM
+            $(`[name='product_name_${locale}']`).val(product.name ? product.name[locale] : "");
+            $(`[name='product_description_${locale}']`).val(product.description ? product.description[locale] : "");
         });
 
-        // Set the correct active tab using Bootstrap's behavior
-        const activeLocale = window.systemLocale || availableLocales[0]; // Default to systemLocale or first locale
-        $(`#${activeLocale}-tab`).addClass("active");
-        $(`#${activeLocale}`).addClass("show active");
+        const activeLocale = window.systemLocale || availableLocales[0];
+        $(`#product-${activeLocale}-tab`).addClass("active");
+        $(`#product-${activeLocale}`).addClass("show active");
 
-        // Show the product modal
         $('#productModal').modal('show');
     }).fail(function(jqXHR, textStatus, errorThrown) {
         console.error("Error fetching product for edit:", textStatus, errorThrown);
