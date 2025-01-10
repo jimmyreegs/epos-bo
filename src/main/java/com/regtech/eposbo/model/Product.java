@@ -12,6 +12,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true) // Add these attributes to the Column annotation
     private String reference;
 
     @ElementCollection
@@ -31,7 +32,11 @@ public class Product {
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductPrice> prices;
+    private List<Price> prices;
+
+    @ManyToOne
+    @JoinColumn(name = "tax_id")
+    private Tax tax;
 
     @ManyToMany
     @JoinTable(
@@ -84,12 +89,20 @@ public class Product {
         this.category = category;
     }
 
-    public List<ProductPrice> getPrices() {
+    public List<Price> getPrices() {
         return prices;
     }
 
-    public void setPrices(List<ProductPrice> prices) {
+    public void setPrices(List<Price> prices) {
         this.prices = prices;
+    }
+
+    public Tax getTax() {
+        return tax;
+    }
+
+    public void setTax(Tax tax) {
+        this.tax = tax;
     }
 
     public List<Allergen> getAllergens() {

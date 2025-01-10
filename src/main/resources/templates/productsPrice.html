@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="priceModal" class="modal fade" id="priceModal" tabindex="-1" aria-labelledby="priceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="priceModalLabel">Manage Prices</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="priceTableContainer">
+          <table id="priceTableInModal" class="table">
+            <thead>
+            <tr>
+              <th>Price Type</th>
+              <th>Amount</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Add/Edit Price</h3>
+        <form id="priceForm">
+          <input type="hidden" id="priceId">
+          <div class="mb-3">
+            <label for="priceTypeSelect" class="form-label">Price Type</label>
+            <select id="priceTypeSelect" class="form-control">
+              <option value="">Select a Price Type</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="priceAmount" class="form-label">Amount</label>
+            <input type="number" step="0.01" class="form-control" id="priceAmount">
+          </div>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

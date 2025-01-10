@@ -8,6 +8,7 @@ public class PriceType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, unique = true) // Add these attributes to the Column annotation
     private String name;
     private String description;
 
@@ -31,9 +32,7 @@ public class PriceType {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public void setDescription(String description) {this.description = description; }
 
     @Override
     public boolean equals(Object o) {

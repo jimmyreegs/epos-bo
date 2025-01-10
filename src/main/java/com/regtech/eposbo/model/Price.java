@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
-public class ProductPrice {
+public class Price {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,10 +18,6 @@ public class ProductPrice {
     @ManyToOne
     @JoinColumn(name = "price_type_id")
     private PriceType priceType;
-
-    @ManyToOne
-    @JoinColumn(name = "tax_id")
-    private Tax tax;
 
     private BigDecimal price;
 
@@ -49,14 +45,6 @@ public class ProductPrice {
         this.priceType = priceType;
     }
 
-    public Tax getTax() {
-        return tax;
-    }
-
-    public void setTax(Tax tax) {
-        this.tax = tax;
-    }
-
     public BigDecimal getPrice() {
         return price;
     }
@@ -67,14 +55,13 @@ public class ProductPrice {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ProductPrice that = (ProductPrice) o;
-        return Objects.equals(id, that.id) && Objects.equals(product, that.product) && Objects.equals(priceType, that.priceType) && Objects.equals(tax, that.tax) && Objects.equals(price, that.price);
+        Price price1 = (Price) o;
+        return Objects.equals(id, price1.id) && Objects.equals(product, price1.product) && Objects.equals(priceType, price1.priceType) && Objects.equals(price, price1.price);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, product, priceType, tax, price);
+        return Objects.hash(id, product, priceType, price);
     }
 }

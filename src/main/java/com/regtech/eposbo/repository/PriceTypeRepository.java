@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface PriceTypeRepository extends JpaRepository<PriceType, Long> {
     Optional<PriceType> findByName(String name); // Add this method
+    boolean existsByName(String name); // Add this line
 }
+
